@@ -26,12 +26,14 @@ class Encoder(nn.Module):
 
     def __init__(self):
         super().__init__()
+        # nn.Embedding: randomly assign word vectors and ask the model to learn
+        # can change it and use fixed word2vec weightings later
+        # reference https://discuss.pytorch.org/t/can-we-use-pre-trained-word-embeddings-for-weight-initialization-in-nn-embedding/1222
         self.word2embd = nn.Embedding(VOCAB_SIZE, self.word_size)
         self.lstm = nn.LSTM(self.word_size, self.thought_size)
 
     def forward(self, sentences):
         # sentences = (batch_size, maxlen), with padding on the right.
-
         sentences = sentences.transpose(0, 1)  # (maxlen, batch_size)
 
         word_embeddings = F.tanh(self.word2embd(sentences))  # (maxlen, batch_size, word_size)
@@ -109,17 +111,16 @@ class UniSkip(nn.Module):
         
         mask = Variable(mask)
         if USE_CUDA:
-            mask = mask.cuda(var.get_device())
+            #mask = mask.cuda(var.get_device())
+            mask = mask.cuda(CUDA_DEVICE)
             
         return mask
 
     def forward(self, sentences, lengths):
         # sentences = (B, maxlen)
         # lengths = (B)
-
         # Compute Thought Vectors for each sentence. Also get the actual word embeddings for teacher forcing.
         thoughts, word_embeddings = self.encoder(sentences)  # thoughts = (B, thought_size), word_embeddings = (B, maxlen, word_size)
-
         # Predict the words for previous and next sentences.
         prev_pred, next_pred = self.decoders(thoughts, word_embeddings)  # both = (batch-1, maxlen, VOCAB_SIZE)
 

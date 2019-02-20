@@ -9,6 +9,7 @@ from config import *
 import numpy as np
 import random
 
+
 np.random.seed(0)
 
 
@@ -59,7 +60,7 @@ class DataLoader:
 
         def convert_index_to_word(idx):
 
-            idx = idx.data[0]
+            idx = idx.item()  # older version idx = idx.data[0]
             if idx == 0:
                 return "EOS"
             elif idx == 1:
@@ -75,7 +76,6 @@ class DataLoader:
             return word
 
         words = [convert_index_to_word(idx) for idx in indices]
-
         return " ".join(words)
 
     def fetch_batch(self, batch_size):
