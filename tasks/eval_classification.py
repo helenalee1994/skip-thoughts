@@ -7,7 +7,7 @@ This code has been taken and modified from https://github.com/ryankiros/skip-tho
 import nbsvm
 import numpy as np
 from scipy.sparse import hstack
-from sklearn.cross_validation import KFold
+from sklearn.model_selection import KFold
 from sklearn.linear_model import LogisticRegression
 
 from tasks import dataset_handler
@@ -27,9 +27,9 @@ def eval_nested_kfold(encoder, name, loc='./data/', k=10, seed=1234, use_nb=Fals
 
     scan = [2**t for t in range(-4,9,1)]
     npts = len(z['text'])
-    kf = KFold(npts, n_folds=k, random_state=seed)
+    kf = KFold(k, random_state=seed)
     scores = []
-    for train, test in kf:
+    for train, test in kf.split(features):
 
         # Split data
         X_train = features[train]
@@ -44,9 +44,9 @@ def eval_nested_kfold(encoder, name, loc='./data/', k=10, seed=1234, use_nb=Fals
         for s in scan:
 
             # Inner KFold
-            innerkf = KFold(len(X_train), n_folds=k, random_state=seed+1)
+            innerkf = KFold(k, random_state=seed+1)
             innerscores = []
-            for innertrain, innertest in innerkf:
+            for innertrain, innertest in innerkf.split(X_train):
         
                 # Split data
                 X_innertrain = X_train[innertrain]
@@ -64,7 +64,7 @@ def eval_nested_kfold(encoder, name, loc='./data/', k=10, seed=1234, use_nb=Fals
                     X_innertest = hstack((X_innertest, NBtest))
 
                 # Train classifier
-                clf = LogisticRegression(C=s)
+                clf = LogisticRegression(C=s, solver = 'lbfgs')
                 clf.fit(X_innertrain, y_innertrain)
                 acc = clf.score(X_innertest, y_innertest)
                 innerscores.append(acc)

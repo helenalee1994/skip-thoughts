@@ -4,7 +4,6 @@ This file implements the Skip-Thought architecture.
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.autograd import Variable
 from config import *
 
@@ -36,7 +35,7 @@ class Encoder(nn.Module):
         # sentences = (batch_size, maxlen), with padding on the right.
         sentences = sentences.transpose(0, 1)  # (maxlen, batch_size)
 
-        word_embeddings = F.tanh(self.word2embd(sentences))  # (maxlen, batch_size, word_size)
+        word_embeddings = torch.tanh(self.word2embd(sentences))  # (maxlen, batch_size, word_size)
 
         # The following is a hack: We read embeddings in reverse. This is required to move padding to the left.
         # If reversing is not done then the RNN sees a lot a garbage values right before its final state.
@@ -131,8 +130,8 @@ class UniSkip(nn.Module):
         masked_prev_pred = prev_pred * prev_mask
         masked_next_pred = next_pred * next_mask
         
-        prev_loss = F.cross_entropy(masked_prev_pred.view(-1, VOCAB_SIZE), sentences[:-1, :].view(-1))
-        next_loss = F.cross_entropy(masked_next_pred.view(-1, VOCAB_SIZE), sentences[1:, :].view(-1))
+        prev_loss = nn.functional.cross_entropy(masked_prev_pred.view(-1, VOCAB_SIZE), sentences[:-1, :].view(-1))
+        next_loss = nn.functional.cross_entropy(masked_next_pred.view(-1, VOCAB_SIZE), sentences[1:, :].view(-1))
 
         loss = prev_loss + next_loss
         
