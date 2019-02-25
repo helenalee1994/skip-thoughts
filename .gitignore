@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 *data
-*ipynb
+prev_model/
 saved_models/
 .idea/
 __pycache__/
