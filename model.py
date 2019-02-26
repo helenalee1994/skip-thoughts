@@ -5,7 +5,7 @@ This file implements the Skip-Thought architecture.
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from config import *
+from skip_thoughts.config import *
 
 
 class Encoder(nn.Module):

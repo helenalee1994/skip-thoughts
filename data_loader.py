@@ -4,8 +4,8 @@ Here we implement a class for loading data.
 
 import torch
 from torch.autograd import Variable
-from vocab import *
-from config import *
+from skip_thoughts.vocab import *
+from skip_thoughts.config import *
 import numpy as np
 import random
 
